@@ -7,6 +7,8 @@
  */
 package starlingbuilder.editor.ui
 {
+    import flash.geom.Point;
+
     import starlingbuilder.editor.SupportedWidget;
     import starlingbuilder.editor.UIEditorApp;
     import starlingbuilder.editor.UIEditorScreen;
@@ -43,13 +45,13 @@ package starlingbuilder.editor.ui
     import starling.display.Sprite;
     import starling.events.Event;
     import starling.text.TextField;
-    import starlingbuilder.editor.utils.AssetManager;
+    import starling.utils.AssetManager;
 
     import starling.textures.TextureAtlas;
 
     public class AssetTab extends LayoutGroup
     {
-        private static const linker:Array = [ScaleTexturePopup, DefaultCreateComponentPopup, DefaultEditPropertyPopup, TexturePropertyPopup, DisplayObjectPropertyPopup];
+        private static const linker:Array = [ScaleTexturePopup, DefaultCreateComponentPopup, DefaultEditPropertyPopup, TexturePropertyPopup, DisplayObjectPropertyPopup, TextureConstructorPopup, ScaleTextureConstructorPopup1, ScaleTextureConstructorPopup2];
 
         public static var assetList:Vector.<String>;
 
@@ -158,19 +160,28 @@ package starlingbuilder.editor.ui
         {
             if (_list.selectedItem)
             {
-                var name:String = _list.selectedItem.label;
-
-                var editorData:Object = {name:name, textureName:name};
-                editorData.cls = _supportedTypes[_typePicker.selectedIndex];
-                if (_textInput.text != "")
-                {
-                    editorData.scaleData = JSON.parse(_textInput.text) as Array;
-                }
-
-                UIComponentHelper.createComponent(editorData);
+                create(_list.selectedItem.label);
 
                 _list.setSelectedLocation(-1, -1);
             }
+        }
+
+        public function create(label:String, position:Point = null):void
+        {
+            var editorData:Object = {name:label, textureName:label};
+            editorData.cls = _supportedTypes[_typePicker.selectedIndex];
+            if (_textInput.text != "")
+            {
+                editorData.scaleData = JSON.parse(_textInput.text) as Array;
+            }
+
+            if (position)
+            {
+                editorData.x = position.x;
+                editorData.y = position.y;
+            }
+
+            UIComponentHelper.createComponent(editorData);
         }
 
         private function listAssets():void
@@ -217,7 +228,7 @@ package starlingbuilder.editor.ui
 
         private function getGroupAssets():HierarchicalCollection
         {
-            var atlasDict:Dictionary = _assetManager.getTextureAtlasDictionary();
+            var atlasNames:Vector.<String> = _assetManager.getTextureAtlasNames();
             var atlasName:String;
 
             var data:Array = [];
@@ -227,9 +238,9 @@ package starlingbuilder.editor.ui
 
             var itemDict:Dictionary = new Dictionary();
 
-            for (atlasName in atlasDict)
+            for each (atlasName in atlasNames)
             {
-                atlas = atlasDict[atlasName];
+                atlas = _assetManager.getTextureAtlas(atlasName);
 
                 item = {header:{label:atlasName}, children:[]};
                 data.push(item);
@@ -245,11 +256,11 @@ package starlingbuilder.editor.ui
 
             for each (var name:String in array)
             {
-                for (atlasName in atlasDict)
+                for each (atlasName in atlasNames)
                 {
                     found = false;
 
-                    atlas = atlasDict[atlasName];
+                    atlas = _assetManager.getTextureAtlas(atlasName);
                     if (atlas.getTexture(name))
                     {
                         itemDict[atlasName].children.push({label:name});
@@ -273,6 +284,7 @@ package starlingbuilder.editor.ui
 
             return new HierarchicalCollection(data);
         }
+
 
         private function refreshAssets():void
         {

@@ -22,7 +22,7 @@ package starlingbuilder.editor
     import starling.utils.HAlign;
     import starling.utils.VAlign;
 
-    [SWF(frameRate=60, width=1300, height=960, backgroundColor="#000")]
+    [SWF(frameRate=60, width=1350, height=960, backgroundColor="#000")]
     public class Main extends Sprite
     {
         public static var STAGE : Stage;
@@ -30,14 +30,11 @@ package starlingbuilder.editor
         private var _viewport:Rectangle;
         private var _starling : Starling;
 
-        private var _appUpdater:AppUpdater;
+
 
         public function Main()
         {
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
-
-            _appUpdater = new AppUpdater();
-
         }
 
         private function _start(e:Event):void
@@ -59,7 +56,7 @@ package starlingbuilder.editor
 
             Starling.handleLostContext = true;
 
-            _starling = new Starling(UIEditorApp, stage, _viewport, null, Context3DRenderMode.AUTO, Context3DProfile.BASELINE);
+            _starling = new Starling(getApp(), stage, _viewport, null, Context3DRenderMode.AUTO, Context3DProfile.BASELINE);
 
             _starling.simulateMultitouch  = false;
             _starling.enableErrorChecking = false;
@@ -71,6 +68,8 @@ package starlingbuilder.editor
             trace("width : " + Starling.current.viewPort.width + ", height : " + Starling.current.viewPort.height);
 
             loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUncaughtError);
+
+            UIEditorApp.SWF_VERSION = loaderInfo.swfVersion;
         }
 
         private function onUncaughtError(event:UncaughtErrorEvent):void
@@ -88,6 +87,11 @@ package starlingbuilder.editor
 
             trace(message);
             InfoPopup.show(message);
+        }
+
+        protected function getApp():Class
+        {
+            return UIEditorApp;
         }
     }
 }

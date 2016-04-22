@@ -7,8 +7,11 @@
  */
 package starlingbuilder.editor.controller
 {
+    import flash.utils.getDefinitionByName;
+
     import starlingbuilder.editor.UIEditorApp;
     import starlingbuilder.editor.UIEditorScreen;
+    import starlingbuilder.editor.data.TemplateData;
     import starlingbuilder.editor.localization.DefaultLocalizationFileWrapper;
     import starlingbuilder.editor.ui.MainMenu;
     import starlingbuilder.editor.ui.MainMenu;
@@ -25,7 +28,15 @@ package starlingbuilder.editor.controller
 
         public function LocalizationManager()
         {
-            _localizationFileWrapper = new DefaultLocalizationFileWrapper(UIEditorScreen.instance.workspaceDir);
+            if (TemplateData.editor_template.uiBuilder && TemplateData.editor_template.uiBuilder.localizationWrapper)
+            {
+                var cls:Class = getDefinitionByName(TemplateData.editor_template.uiBuilder.localizationWrapper) as Class;
+                _localizationFileWrapper = new cls(UIEditorScreen.instance.workspaceDir);
+            }
+            else
+            {
+                _localizationFileWrapper = new DefaultLocalizationFileWrapper(UIEditorScreen.instance.workspaceDir);
+            }
 
             _localization = _localizationFileWrapper.localization;
 
@@ -91,7 +102,7 @@ package starlingbuilder.editor.controller
             })
         }
 
-        private function onLocale(event:Event):void
+        public function onLocale(event:Event):void
         {
             var locale:String = event.type;
 
@@ -109,6 +120,7 @@ package starlingbuilder.editor.controller
             var documentManager:DocumentManager = UIEditorApp.instance.documentManager;
 
             documentManager.uiBuilder.localizeTexts(documentManager.root, documentManager.extraParamsDict);
+            documentManager.setChanged();
         }
 
         public function get localization():ILocalization

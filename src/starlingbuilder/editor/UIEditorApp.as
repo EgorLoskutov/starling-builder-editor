@@ -7,20 +7,28 @@
  */
 package starlingbuilder.editor
 {
+    import starlingbuilder.editor.controller.ComponentRenderSupport;
     import starlingbuilder.editor.controller.DocumentManager;
     import starlingbuilder.editor.controller.LocalizationManager;
     import starlingbuilder.editor.themes.MetalWorksDesktopTheme2;
 
     import starling.display.Sprite;
     import starling.events.EventDispatcher;
-    import starlingbuilder.editor.utils.AssetManager;
+    import starling.utils.AssetManager;
+
+    import starlingbuilder.editor.ui.AbstractPropertyPopup;
+    import starlingbuilder.util.AppUpdater;
 
     public class UIEditorApp extends Sprite
     {
+        public static var SWF_VERSION:int;
+
         private var _assetManager:AssetManager;
         private var _documentManager:DocumentManager;
         private var _localizationManager:LocalizationManager;
         private var _notificationDispatcher:EventDispatcher;
+
+        private var _appUpdater:AppUpdater;
 
         private static var _instance:UIEditorApp;
 
@@ -32,12 +40,14 @@ package starlingbuilder.editor
 
         public function UIEditorApp()
         {
+            _appUpdater = new AppUpdater();
+
             setup();
 
             //new MetalWorksMobileTheme2(false, _documentManager);
             new MetalWorksDesktopTheme2(_documentManager);
 
-            addChild(new UIEditorScreen());
+            addChild(createEditorScreen());
         }
 
         private function setup():void
@@ -53,6 +63,7 @@ package starlingbuilder.editor
         {
             _localizationManager = new LocalizationManager();
             _documentManager = new DocumentManager(_assetManager, _localizationManager);
+            ComponentRenderSupport.support = _documentManager;
         }
 
         public function get assetManager():AssetManager
@@ -73,6 +84,16 @@ package starlingbuilder.editor
         public function get notificationDispatcher():EventDispatcher
         {
             return _notificationDispatcher;
+        }
+
+        protected function createEditorScreen():Sprite
+        {
+            return new UIEditorScreen();
+        }
+
+        public function get appUpdater():AppUpdater
+        {
+            return _appUpdater;
         }
 
 

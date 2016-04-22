@@ -15,10 +15,14 @@ package starlingbuilder.editor
     import starlingbuilder.editor.helper.AssetLoaderWithOptions;
     import starlingbuilder.editor.helper.CustomComponentHelper;
     import starlingbuilder.editor.helper.CustomThemeHelper;
+    import starlingbuilder.editor.helper.CustomThemeHelper;
+    import starlingbuilder.editor.helper.FileListingHelper;
     import starlingbuilder.editor.helper.KeyboardHelper;
+    import starlingbuilder.editor.helper.LoadSwfHelper;
     import starlingbuilder.editor.ui.CenterPanel;
     import starlingbuilder.editor.ui.LeftPanel;
     import starlingbuilder.editor.ui.MainMenu;
+    import starlingbuilder.editor.ui.PositionToolbar;
     import starlingbuilder.editor.ui.RightPanel;
     import starlingbuilder.editor.ui.SettingPopup;
     import starlingbuilder.editor.ui.Toolbar;
@@ -43,7 +47,7 @@ package starlingbuilder.editor
     import starling.display.Stage;
     import starling.events.Event;
     import starling.events.ResizeEvent;
-    import starlingbuilder.editor.utils.AssetManager;
+    import starling.utils.AssetManager;
 
     public class UIEditorScreen extends LayoutGroup
     {
@@ -55,6 +59,7 @@ package starlingbuilder.editor
         private var _assetManager:AssetManager;
 
         private var _toolbar:Toolbar;
+        private var _positionToolbar:PositionToolbar;
 
         private var _leftPanel:LeftPanel;
         private var _rightPanel:RightPanel;
@@ -226,20 +231,23 @@ package starlingbuilder.editor
 
             menu.unregisterAll();
 
-            CustomComponentHelper.load(_assetManager, _workspaceDir, onComplete);
+            var libFiles:Array = FileListingHelper.getFileList(_workspaceDir, "libs", ["swf"]);
+            LoadSwfHelper.loads(libFiles, _assetManager, onComplete);
 
             function onComplete():void
             {
+                CustomComponentHelper.load(_workspaceDir);
+
                 UIEditorApp.instance.init();
 
-                CustomThemeHelper.load(_assetManager);
+                CustomThemeHelper.load();
 
                 KeyboardHelper.startKeyboard(UIEditorApp.instance.documentManager);
 
                 menu.registerAction(MainMenu.SETTING, onSetting);
 
                 initUI();
-
+                initTests();
             }
 
 
@@ -252,6 +260,7 @@ package starlingbuilder.editor
             createToolbar();
             createLeftPanel();
             createRightPanel();
+            createPositionToolbar();
             createCenterPanel();
 
             UIEditorApp.instance.documentManager.clear();
@@ -318,7 +327,7 @@ package starlingbuilder.editor
         private function createCenterPanel():void
         {
             var layoutData:AnchorLayoutData = new AnchorLayoutData();
-            layoutData.left = _leftPanel.width;
+            layoutData.left = _leftPanel.width + _positionToolbar.width;
             layoutData.top = _toolbar.height;
             layoutData.bottom = 0;
             layoutData.right = 5;
@@ -327,6 +336,15 @@ package starlingbuilder.editor
             _centerPanel = new CenterPanel();
             _centerPanel.layoutData = layoutData;
             addChild(_centerPanel);
+        }
+
+        private function createPositionToolbar():void
+        {
+            _positionToolbar = new PositionToolbar();
+            _positionToolbar.validate();
+            _positionToolbar.x = _leftPanel.width;
+            _positionToolbar.y = _toolbar.height;
+            addChild(_positionToolbar);
         }
 
         private function testButton():void
@@ -383,6 +401,11 @@ package starlingbuilder.editor
         public function get setting():Setting
         {
             return _setting;
+        }
+
+        protected function initTests():void
+        {
+
         }
 
     }

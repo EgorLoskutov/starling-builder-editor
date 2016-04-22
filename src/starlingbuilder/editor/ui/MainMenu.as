@@ -49,6 +49,7 @@ package starlingbuilder.editor.ui
         public static const ZOOM_IN:String = "Zoom In";
         public static const ZOOM_OUT:String = "Zoom Out";
         public static const RESET_ZOOM:String = "Reset Zoom";
+        public static const CANVAS_SNAPSHOT:String = "Canvas Snapshot"
 
         public static const SHOW_TEXT_BORDER:String = "Show text border";
         public static const SNAP_PIXEL:String = "Snap pixel";
@@ -62,6 +63,7 @@ package starlingbuilder.editor.ui
         public static const DOCUMENTATION:String = "Documentation";
         public static const GITHUB_PAGE:String = "Github Page";
         public static const ABOUT:String = "About";
+        public static const CHECK_FOR_UPDATE:String = "Check for update";
 
         public static const FILE_MENU:Array = [
             {"label":NEW, "key":"n"},
@@ -99,6 +101,7 @@ package starlingbuilder.editor.ui
             {"label":ZOOM_IN, "key":"+"},
             {"label":ZOOM_OUT, "key":"-"},
             {"label":RESET_ZOOM, "key":"0"},
+            {"label":CANVAS_SNAPSHOT}
         ]
 
         public static const OPTION_MENU:Array = [
@@ -116,7 +119,8 @@ package starlingbuilder.editor.ui
         public static const HELP_MENU:Array = [
             {"label":DOCUMENTATION},
             {"label":GITHUB_PAGE},
-            {"label":ABOUT}
+            {"label":CHECK_FOR_UPDATE},
+            {"label":ABOUT},
         ]
 
         private static var _instance:MainMenu;

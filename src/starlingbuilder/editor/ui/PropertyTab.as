@@ -14,6 +14,7 @@ package starlingbuilder.editor.ui
     import starlingbuilder.editor.controller.DocumentManager;
     import starlingbuilder.editor.data.TemplateData;
     import starlingbuilder.editor.events.DocumentEventType;
+    import starlingbuilder.editor.history.CompositeHistoryOperation;
     import starlingbuilder.editor.history.ResetOperation;
     import starlingbuilder.editor.themes.UIEditorStyleProvider;
     import starlingbuilder.engine.util.ParamUtil;
@@ -23,7 +24,6 @@ package starlingbuilder.editor.ui
     import starlingbuilder.util.ui.inspector.PropertyComponentType;
     import starlingbuilder.util.ui.inspector.PropertyPanel;
     import starlingbuilder.util.ui.inspector.UIMapperUtil;
-    import starlingbuilder.util.ui.inspector.WidthAndHeightPropertyRetriever;
 
     import feathers.controls.Button;
     import feathers.controls.ButtonGroup;
@@ -38,7 +38,7 @@ package starlingbuilder.editor.ui
     import starling.display.DisplayObject;
     import starling.display.DisplayObjectContainer;
     import starling.events.Event;
-    import starlingbuilder.editor.utils.AssetManager;
+    import starling.utils.AssetManager;
 
     public class PropertyTab extends ScrollContainer
     {
@@ -66,7 +66,7 @@ package starlingbuilder.editor.ui
             _documentManager = UIEditorApp.instance.documentManager;
             _documentManager.addEventListener(DocumentEventType.CHANGE, onChange);
 
-            width = 320;
+            width = 350;
 
             var layout:VerticalLayout = new VerticalLayout();
             layout.paddingTop = layout.gap = 20;
@@ -100,14 +100,7 @@ package starlingbuilder.editor.ui
                 param.options = getStyleNames(target as FeathersControl);
             }
 
-            if (target is DisplayObject && (param.name == "width" || param.name == "height"))
-            {
-                return new WidthAndHeightPropertyRetriever(target, param);
-            }
-            else
-            {
-                return new DefaultPropertyRetriever(target, param);
-            }
+            return new DefaultPropertyRetriever(target, param);
         }
 
         private function createButtons():Array
@@ -135,21 +128,29 @@ package starlingbuilder.editor.ui
 
         private function reset():void
         {
-            var obj:DisplayObject = _documentManager.selectedObject;
+            var objects:Array = _documentManager.selectedObjects;
 
-            if (obj)
+            if (objects.length)
             {
-                var oldValue:Object = {rotation:obj.rotation, scaleX:obj.scaleX, scaleY:obj.scaleY};
+                var ops:Array = [];
 
-                obj.rotation = 0;
-                obj.scaleX = 1;
-                obj.scaleY = 1;
+                for each (var obj:DisplayObject in objects)
+                {
+                    var oldValue:Object = {rotation:obj.rotation, scaleX:obj.scaleX, scaleY:obj.scaleY};
+
+                    obj.rotation = 0;
+                    obj.scaleX = 1;
+                    obj.scaleY = 1;
+
+                    var newValue:Object = {rotation:obj.rotation, scaleX:obj.scaleX, scaleY:obj.scaleY};
+
+                    var op:ResetOperation = new ResetOperation(obj, oldValue, newValue);
+                    ops.push(op);
+                }
+
+                _documentManager.historyManager.add(new CompositeHistoryOperation(ops));
                 _documentManager.setChanged();
-
-                var newValue:Object = {rotation:obj.rotation, scaleX:obj.scaleX, scaleY:obj.scaleY};
-                _documentManager.historyManager.add(new ResetOperation(obj, oldValue, newValue));
             }
-
         }
 
         private function getObjectParams(target:Object):Array
@@ -184,7 +185,6 @@ package starlingbuilder.editor.ui
             if (!_propertyPanelCache[target.constructor])
             {
                 var propertyPanel:PropertyPanel = new PropertyPanel(null, null, displayObjectPropertyFactory);
-                propertyPanel.linkedProperties = ["width", "height"];
                 _propertyPanelCache[target.constructor] = propertyPanel;
             }
 

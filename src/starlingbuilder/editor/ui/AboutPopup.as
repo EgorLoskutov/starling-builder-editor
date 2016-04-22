@@ -10,6 +10,9 @@ package starlingbuilder.editor.ui
     import feathers.FEATHERS_VERSION;
 
     import starling.core.Starling;
+    import starling.display.DisplayObject;
+
+    import starlingbuilder.editor.UIEditorApp;
 
     import starlingbuilder.util.feathers.FeathersUIUtil;
     import starlingbuilder.util.feathers.popup.InfoPopup;
@@ -25,7 +28,7 @@ package starlingbuilder.editor.ui
 
     public class AboutPopup extends InfoPopup
     {
-        [Embed(source="../../../../icons/icon128.png")]
+        [Embed(source="icon128.png")]
         public static const ICON:Class;
 
         private var _iconTexture:Texture;
@@ -62,6 +65,7 @@ package starlingbuilder.editor.ui
             container.addChild(FeathersUIUtil.labelWithText(copyright));
             container.addChild(FeathersUIUtil.labelWithText("Starling version: " + Starling.VERSION));
             container.addChild(FeathersUIUtil.labelWithText("Feathers version: " + FEATHERS_VERSION));
+            container.addChild(FeathersUIUtil.labelWithText("SWF version: " + UIEditorApp.SWF_VERSION));
         }
 
         override public function dispose():void

@@ -9,7 +9,7 @@ package starlingbuilder.editor.helper
     import flash.system.LoaderContext;
     import flash.utils.ByteArray;
 
-    import starlingbuilder.editor.utils.AssetManager;
+    import starling.utils.AssetManager;
 
     public class LoadSwfHelper
     {
@@ -41,6 +41,42 @@ package starlingbuilder.editor.helper
             {
                 onComplete(null);
             }
+        }
+
+        public static function loads(files:Array, assetManager:AssetManager, onComplete:Function):void
+        {
+            var context:LoaderContext = new LoaderContext();
+
+            context.allowCodeImport = true;
+            context.applicationDomain = ApplicationDomain.currentDomain;
+
+            var total:int = 0;
+            var completed:int = 0;
+
+            for (var i:int = 0; i < files.length; ++i)
+            {
+                var byteArray:ByteArray = assetManager.getByteArray(files[i]);
+
+                if (byteArray)
+                {
+                    ++total;
+
+                    var loader:Loader = new Loader();
+                    loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
+                    loader.loadBytes(byteArray, context);
+
+                    function onLoaderComplete(e:Event):void
+                    {
+                        ++completed;
+
+                        if (completed == total)
+                            onComplete();
+                    }
+                }
+            }
+
+            if (total == 0)
+                onComplete();
         }
     }
 }
